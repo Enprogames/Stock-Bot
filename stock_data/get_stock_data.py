@@ -1,5 +1,6 @@
 import datetime
 from typing import List
+import os
 
 import yfinance as yf
 import matplotlib.pyplot as plt
@@ -38,6 +39,12 @@ def avg_tan_line(graph: List[float]) -> List[float]:
         tan_line_vals.append(avg_slope*x_val)
 
     return tan_line_vals
+
+if not os.path.exists('stored_data'):
+    os.mkdir('stored_data')
+
+if not os.path.isfile('stored_data/msft.pkl'):
+    download_data.store_ticker('MSFT')
 
 # store ticker values for AMD, Disney, and Tesla
 tickers = ('AMD', 'DIS', 'TSLA')
