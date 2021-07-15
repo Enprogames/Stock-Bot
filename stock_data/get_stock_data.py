@@ -36,7 +36,7 @@ def avg_tan_line(graph: List[float]) -> List[float]:
     for x_val in range(graph_len):
         # tangent line: y = mx + b
         print(x_val)
-        tan_line_vals.append(avg_slope*x_val)
+        tan_line_vals.append(avg_slope*x_val+graph[0])
 
     return tan_line_vals
 
@@ -68,7 +68,7 @@ avg_slope = avg_tan_line(msft_close_list)
 # stock_prices['TSLA'].plot()
 #msft_close_data.plot(label='MSFT')
 plt.plot(msft_close_list, label='MSFT')
-plt.plot(avg_slope, msft_close_data, label='MSFT avg slope')
+plt.plot(avg_slope, label='MSFT avg slope')
 
 plt.title('Stock Prices for AMD, Disney, and Tesla')
 plt.ylabel('Stock Price')
