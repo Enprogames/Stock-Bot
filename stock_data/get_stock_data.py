@@ -9,6 +9,22 @@ import pandas as pd
 import download_data
 
 
+def max_val(graph: List[float]) -> float:
+    max_num = graph[0]
+    for item in graph:
+        if item > max_num:
+            max_num = item
+    return max_num
+
+
+def min_val(graph: List[float]) -> float:
+    min_num = graph[0]
+    for item in graph:
+        if item < min_num:
+            min_num = item
+    return min_num
+
+
 def slope(graph: List[float], point: int):
     """
     Find the slope of the graph at a point
@@ -33,12 +49,24 @@ def avg_tan_line(graph: List[float]) -> List[float]:
 
     avg_slope = slope_total/graph_len
 
+    # find the best y-intercept so that the middle of the equation is at the average height of the graph
+    avg_height: float = 0
+    for point in graph:
+        avg_height += point
+    avg_height /= graph_len
+
+    # find what the height of this tangent line should be in the middle
+    middle_height = avg_slope*(graph_len/2)
+
+    y_int = avg_height - middle_height
+
     for x_val in range(graph_len):
         # tangent line: y = mx + b
-        print(x_val)
-        tan_line_vals.append(avg_slope*x_val+graph[0])
+        tan_line_vals.append(avg_slope*x_val+y_int)
 
     return tan_line_vals
+
+#def tan_line_val()
 
 if not os.path.exists('stored_data'):
     os.mkdir('stored_data')
