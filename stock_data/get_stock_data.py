@@ -70,7 +70,7 @@ avg_slope = avg_tan_line(msft_close_list)
 plt.plot(msft_close_list, label='MSFT')
 plt.plot(avg_slope, label='MSFT avg slope')
 
-plt.title('Stock Prices for AMD, Disney, and Tesla')
+plt.title('Microsoft Stock Price and Average Slope')
 plt.ylabel('Stock Price')
 plt.legend()
 plt.show()
