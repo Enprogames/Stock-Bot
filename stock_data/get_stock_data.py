@@ -1,31 +1,36 @@
 import datetime
 from typing import List
 import os
+import io
 
-import yfinance as yf
-import matplotlib.pyplot as plt
+import tkinter as tk
+from PIL import ImageTk, Image
+
+import plotly.express as px
+import plotly.io as pio
 import numpy as np
 import pandas as pd
 import download_data
 
 
-def max_val(graph: List[float]) -> float:
-    max_num = graph[0]
-    for item in graph:
-        if item > max_num:
-            max_num = item
-    return max_num
+def show_fig(fig, width=800, height=800):
+    root = tk.Tk()
+    canvas = tk.Canvas(root, width=width, height=height)
+    canvas.pack()
+
+    # turn figure into Image
+    if not os.path.exists("images"):
+        os.mkdir("images")
+
+    fig.write_image("images/fig.jpeg", width=width, height=height)
+    image_file = Image.open("images/fig.jpeg")
+    image = ImageTk.PhotoImage(image_file)
+
+    canvas.create_image(20, 20, anchor=tk.NW, image=image)
+    root.mainloop()
 
 
-def min_val(graph: List[float]) -> float:
-    min_num = graph[0]
-    for item in graph:
-        if item < min_num:
-            min_num = item
-    return min_num
-
-
-def slope(graph: List[float], point: int):
+def slope_at_point(graph: List[float], point: int):
     """
     Find the slope of the graph at a point
     :param graph: A numpy array containing the y axis of the graph
@@ -45,7 +50,7 @@ def avg_tan_line(graph: List[float]) -> List[float]:
     slope_total: float = 0
 
     for x_val in range(0, graph_len-1):
-        slope_total += slope(graph, x_val)
+        slope_total += slope_at_point(graph, x_val)
 
     avg_slope = slope_total/graph_len
 
@@ -66,39 +71,26 @@ def avg_tan_line(graph: List[float]) -> List[float]:
 
     return tan_line_vals
 
-#def tan_line_val()
 
 if not os.path.exists('stored_data'):
     os.mkdir('stored_data')
 
-if not os.path.isfile('stored_data/msft.pkl'):
-    download_data.store_ticker('MSFT')
-
 # store ticker values for AMD, Disney, and Tesla
 tickers = ('AMD', 'DIS', 'TSLA')
 
+ticker = 'MSFT'
+
+if not os.path.isfile(f'stored_data/{ticker.lower()}.pkl'):
+    download_data.store_ticker(ticker.lower())
+
 # get all close data for Microsoft
-msft_close_data = pd.read_pickle('stored_data/msft.pkl').Close
+ticker_close_data = pd.read_pickle(f'stored_data/{ticker.lower()}.pkl').Close
 
-msft_close_list = msft_close_data.tolist()
+ticker_close_list = ticker_close_data.tolist()
 
-avg_slope = avg_tan_line(msft_close_list)
+avg_slope = avg_tan_line(ticker_close_list)
 
-# get close prices for tickers
-#stock_prices = yf.download(tickers, start="2020-1-1", end=datetime.datetime.now().strftime('%Y-%m-%d'), peroid='ytd').Close
+fig = px.line(ticker_close_list, title=f'{ticker}')
+#plt.plot(avg_slope, label='MSFT avg slope')
 
-#print(stock_prices)
-#print(ticker_data.history(period='1d', start='2020-1-1', end=datetime.datetime.now().strftime('%Y-%m-%d')))
-
-
-# stock_prices['AMD'].plot()
-# stock_prices['DIS'].plot()
-# stock_prices['TSLA'].plot()
-#msft_close_data.plot(label='MSFT')
-plt.plot(msft_close_list, label='MSFT')
-plt.plot(avg_slope, label='MSFT avg slope')
-
-plt.title('Microsoft Stock Price and Average Slope')
-plt.ylabel('Stock Price')
-plt.legend()
-plt.show()
+show_fig(fig)
