@@ -1,33 +1,41 @@
 import datetime
 from typing import List
 import os
-import io
+import sys
 
-import tkinter as tk
-from PIL import ImageTk, Image
-
+from PyQt5.QtWidgets import QApplication, QWidget, QLabel
+from PyQt5.QtGui import QIcon, QPixmap
 import plotly.express as px
-import plotly.io as pio
 import numpy as np
 import pandas as pd
+
 import download_data
 
 
 def show_fig(fig, width=800, height=800):
-    root = tk.Tk()
-    canvas = tk.Canvas(root, width=width, height=height)
-    canvas.pack()
 
-    # turn figure into Image
+    root = QApplication(sys.argv)
+
+    img_widget = QWidget()
+    img_widget.width = width
+    img_widget.height = height
+    #canvas = tk.Canvas(root, width=width, height=height)
+    #canvas.pack()
+
+    # display figure in pyqt window
     if not os.path.exists("images"):
         os.mkdir("images")
 
-    fig.write_image("images/fig.jpeg", width=width, height=height)
-    image_file = Image.open("images/fig.jpeg")
-    image = ImageTk.PhotoImage(image_file)
+    #fig.write_image("images/fig.jpeg", width=width, height=height)
+    label = QLabel(img_widget)
+    pixmap = QPixmap('images/fig.jpeg')
+    label.setPixmap(pixmap)
 
-    canvas.create_image(20, 20, anchor=tk.NW, image=image)
-    root.mainloop()
+    #image_file = Image.open("images/fig.jpeg")
+    #image = ImageTk.PhotoImage(image_file)
+
+    #canvas.create_image(20, 20, anchor=tk.NW, image=image)
+    img_widget.show()
 
 
 def slope_at_point(graph: List[float], point: int):
