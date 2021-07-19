@@ -131,3 +131,6 @@ dmypy.json
 # Pycharm
 .git
 .idea
+
+# Data files
+*.pkl
