@@ -1,4 +1,5 @@
 import datetime
+import time
 from typing import List
 import os
 import io
@@ -12,8 +13,9 @@ import pandas as pd
 import download_data
 
 
-def show_fig(fig, width=800, height=800):
+def show_fig(figure, width=800, height=800):
     root = tk.Tk()
+    root.geometry(f'+{-1500}+{50}')
     canvas = tk.Canvas(root, width=width, height=height)
     canvas.pack()
 
@@ -21,15 +23,15 @@ def show_fig(fig, width=800, height=800):
     if not os.path.exists("images"):
         os.mkdir("images")
 
-    fig.write_image("images/fig.jpeg", width=width, height=height)
+    figure.write_image("images/fig.jpeg", width=width, height=height)
     image_file = Image.open("images/fig.jpeg")
     image = ImageTk.PhotoImage(image_file)
 
-    canvas.create_image(20, 20, anchor=tk.NW, image=image)
+    canvas.create_image(0, 0, anchor=tk.NW, image=image)
     root.mainloop()
 
 
-def slope_at_point(graph: List[float], point: int):
+def slope_at_point(graph: np.array, point: int):
     """
     Find the slope of the graph at a point
     :param graph: A numpy array containing the y axis of the graph
@@ -40,35 +42,31 @@ def slope_at_point(graph: List[float], point: int):
     return graph[point+1] - graph[point]
 
 
-def avg_tan_line(graph: List[float]) -> List[float]:
+def moving_avg_line(graph: pd.Series) -> pd.Series:
 
-    tan_line_vals: List[float] = []
+    tan_line_vals: np.array = np.empty(len(graph))
 
-    avg_slope: float
+    avg_slope_val: float
     graph_len: int = len(graph)
-    slope_total: float = 0
 
-    for x_val in range(0, graph_len-1):
-        slope_total += slope_at_point(graph, x_val)
-
-    avg_slope = slope_total/graph_len
+    # find the average slope of the graph
+    avg_slope_val = sum([slope_at_point(graph, x_val) for x_val in range(0, graph_len-1)]) / graph_len
+    print(avg_slope_val)
 
     # find the best y-intercept so that the middle of the equation is at the average height of the graph
-    avg_height: float = 0
-    for point in graph:
-        avg_height += point
-    avg_height /= graph_len
+    avg_height: float = graph.to_numpy().sum() / graph_len
 
     # find what the height of this tangent line should be in the middle
-    middle_height = avg_slope*(graph_len/2)
+    middle_height = avg_slope_val*(graph_len/2)
 
+    # find how high up the tangent line should start
     y_int = avg_height - middle_height
 
     for x_val in range(graph_len):
         # tangent line: y = mx + b
-        tan_line_vals.append(avg_slope*x_val+y_int)
+        tan_line_vals[x_val] = avg_slope_val*x_val+y_int
 
-    return tan_line_vals
+    return pd.Series(tan_line_vals, index=graph.keys(), name=f'Moving Avg')
 
 
 if not os.path.exists('stored_data'):
@@ -83,13 +81,20 @@ if not os.path.isfile(f'stored_data/{ticker.lower()}.pkl'):
     download_data.store_ticker(ticker.lower())
 
 # get all close data for Microsoft
-ticker_close_data = pd.read_pickle(f'stored_data/{ticker.lower()}.pkl').Close
+ticker_close_data: pd.Series = pd.read_pickle(f'stored_data/{ticker.lower()}.pkl').Close
+ticker_close_data.name = f'{ticker} Close Data'
 
-ticker_close_list = ticker_close_data.tolist()
+avg_slope: pd.Series = moving_avg_line(ticker_close_data)
 
-avg_slope = avg_tan_line(ticker_close_list)
+figure_values = pd.concat([ticker_close_data, avg_slope], axis=1)
 
-fig = px.line(ticker_close_list, title=f'{ticker}')
-#plt.plot(avg_slope, label='MSFT avg slope')
+pd.options.plotting.backend = "plotly"
+fig = figure_values.plot(title=f'{ticker} Close', template='plotly_dark', kind='line')
+
+
+fig.update_layout(yaxis_title='Close', xaxis_title='Date')
+
+# uncomment to open browser window showing graph
+#fig.show()
 
 show_fig(fig)
