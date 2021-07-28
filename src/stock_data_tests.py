@@ -2,7 +2,6 @@ import datetime
 import time
 from typing import List
 import os
-import io
 
 import tkinter as tk
 from PIL import ImageTk, Image
