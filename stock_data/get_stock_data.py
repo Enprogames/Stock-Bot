@@ -8,6 +8,7 @@ import tkinter as tk
 from PIL import ImageTk, Image
 
 import plotly.express as px
+import plotly.graph_objects as go
 import numpy as np
 import pandas as pd
 import download_data
@@ -81,7 +82,8 @@ if not os.path.isfile(f'stored_data/{ticker.lower()}.pkl'):
     download_data.store_ticker(ticker.lower())
 
 # get all close data for Microsoft
-ticker_close_data: pd.Series = pd.read_pickle(f'stored_data/{ticker.lower()}.pkl').Close
+ticker_data = pd.read_pickle(f'stored_data/{ticker.lower()}.pkl')
+ticker_close_data: pd.Series = ticker_data.Close
 ticker_close_data.name = f'{ticker} Close Data'
 
 avg_slope: pd.Series = moving_avg_line(ticker_close_data)
@@ -89,12 +91,18 @@ avg_slope: pd.Series = moving_avg_line(ticker_close_data)
 figure_values = pd.concat([ticker_close_data, avg_slope], axis=1)
 
 pd.options.plotting.backend = "plotly"
-fig = figure_values.plot(title=f'{ticker} Close', template='plotly_dark', kind='line')
+#fig = figure_values.plot(title=f'{ticker} Close', template='plotly_dark', kind='line')
+print(ticker_data.index)
+fig = go.Figure(data=[go.Candlestick(x=ticker_data.index,
+                open=ticker_data['Open'],
+                high=ticker_data['High'],
+                low=ticker_data['Low'],
+                close=ticker_data['Close'])])
 
 
 fig.update_layout(yaxis_title='Close', xaxis_title='Date')
 
 # uncomment to open browser window showing graph
-#fig.show()
+fig.show()
 
 show_fig(fig)
