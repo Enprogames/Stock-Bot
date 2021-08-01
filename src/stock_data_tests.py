@@ -43,26 +43,58 @@ ticker_symbol = 'MSFT'
 # update the data if it is more than one day old
 data_provider = download_data.StockDataProvider(tolerance=60*60*24)
 
-ticker_data = ticker.Ticker(ticker_symbol)
+ticker_data = ticker.Ticker(ticker_symbol, start='01-01-2020', end=datetime.datetime.now())
 
 # get all close data for Microsoft
 ticker_close_data: pd.Series = ticker_data.Close
 ticker_close_data.name = f'{ticker_symbol} Close Data'
 
-avg_slope_line1: pd.Series = ticker_data.moving_avg_line(
-                                                        start='03-01-2015',
-                                                        end='03-01-2020'
-                                                        )
-
-avg_slope_line2: pd.Series = ticker_data.moving_avg_line(
+secondary_trend1: pd.Series = ticker_data.moving_avg_line(
                                                         start='03-01-2020',
-                                                        end=datetime.datetime.now()
+                                                        end='09-01-2020'
                                                         )
 
-fig = px.line(
-        x=avg_slope_line2.index,
-        y=avg_slope_line2.to_list()
-      )
+secondary_trend2: pd.Series = ticker_data.moving_avg_line(
+                                                        start='09-01-2020',
+                                                        end='03-01-2021'
+                                                        )
+
+secondary_trend3: pd.Series = ticker_data.moving_avg_line(
+                                                        start='03-01-2021',
+                                                        end='09-01-2021'
+                                                        )
+
+primary_trend: pd.Series = ticker_data.moving_avg_line(
+                                                        start='03-01-2020',
+                                                        end=datetime.datetime.now() - datetime.timedelta(days=5)
+                                                        )
+
+fig = go.Figure()
+
+fig.add_scatter(
+                x=secondary_trend1.index,
+                y=secondary_trend1.to_list(),
+                name='Secondary Trend'
+               )
+
+fig.add_scatter(
+                x=secondary_trend2.index,
+                y=secondary_trend2.to_list(),
+                name='Secondary Trend'
+               )
+
+fig.add_scatter(
+                x=secondary_trend3.index,
+                y=secondary_trend3.to_list(),
+                name='Secondary Trend'
+               )
+
+fig.add_scatter(
+                x=primary_trend.index,
+                y=primary_trend.to_list(),
+                name='Primary Trend'
+                )
+
 
 fig.add_candlestick(
                     x=ticker_data.index,
@@ -71,6 +103,16 @@ fig.add_candlestick(
                     low=ticker_data['Low'],
                     close=ticker_data['Close']
                     )
+
+date_location = ticker_close_data.loc['03-01-2020':'04-01-2020']
+print(date_location)
+
+# fig.add_vline(x=date_location[0],
+#               line_color='white', line_width=1000)
+# fig.add_vline(x=['11-01-2020'], line_width=3, line_dash="dash", line_color="green")
+
+fig.add_trace(go.Bar(x=['03-01-2020', '04-01-2020'], y=[200, 250], opacity=0.5))
+#fig.add_hrect(y0=0.9, y1=200, line_width=0, fillcolor="red", opacity=0.2)
 
 fig.update_layout(title=f'{ticker_symbol} Close', template='plotly_dark', yaxis_title='Close', xaxis_title='Date')
 
