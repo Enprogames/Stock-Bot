@@ -12,12 +12,22 @@ class Ticker(pd.DataFrame):
     Represents a stock market ticker. Holds data
     """
 
-    def __init__(self, symbol):
+    def __init__(self, symbol, start=None, end=None):
 
         # update to latest stock data if it is older than 5 minutes
         stock_data_provider = download_data.StockDataProvider(tolerance=60*60*24)
 
         yfinance_ticker_data = stock_data_provider.get_ticker(symbol)
+
+        if start and end:
+            mask = (yfinance_ticker_data.index >= start) & (yfinance_ticker_data.index <= end)
+            yfinance_ticker_data = yfinance_ticker_data.loc[mask]
+        elif start:
+            mask = (yfinance_ticker_data.index >= start)
+            yfinance_ticker_data = yfinance_ticker_data.loc[mask]
+        elif end:
+            mask = yfinance_ticker_data.index <= end
+            yfinance_ticker_data = yfinance_ticker_data.loc[mask]
 
         super().__init__(yfinance_ticker_data)
 
