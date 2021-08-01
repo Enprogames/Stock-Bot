@@ -11,6 +11,7 @@ import plotly.graph_objects as go
 import numpy as np
 import pandas as pd
 import download_data
+import ticker
 
 
 def show_fig(figure, width=800, height=800):
@@ -69,39 +70,51 @@ def moving_avg_line(graph: pd.Series) -> pd.Series:
     return pd.Series(tan_line_vals, index=graph.keys(), name=f'Moving Avg')
 
 
-if not os.path.exists('stored_data'):
-    os.mkdir('stored_data')
+ticker_data_dir = os.path.join('stored_data', 'tickers')
+pd.options.plotting.backend = "plotly"
 
 # store ticker values for AMD, Disney, and Tesla
 tickers = ('AMD', 'DIS', 'TSLA')
 
-ticker = 'MSFT'
+ticker_symbol = 'MSFT'
 
-if not os.path.isfile(f'stored_data/{ticker.lower()}.pkl'):
-    download_data.store_ticker(ticker.lower())
+# update the data if it is more than one day old
+data_provider = download_data.StockDataProvider(tolerance=60*60*24)
+
+ticker_data = data_provider.get_ticker(ticker_symbol)
 
 # get all close data for Microsoft
-ticker_data = pd.read_pickle(f'stored_data/{ticker.lower()}.pkl')
 ticker_close_data: pd.Series = ticker_data.Close
-ticker_close_data.name = f'{ticker} Close Data'
+ticker_close_data.name = f'{ticker_symbol} Close Data'
 
-avg_slope: pd.Series = moving_avg_line(ticker_close_data)
+avg_slope_line: pd.Series = moving_avg_line(ticker_close_data)
 
-figure_values = pd.concat([ticker_close_data, avg_slope], axis=1)
+fig = px.line(
+        x=avg_slope_line.index,
+        y=avg_slope_line.to_list()
+      )
 
-pd.options.plotting.backend = "plotly"
-#fig = figure_values.plot(title=f'{ticker} Close', template='plotly_dark', kind='line')
-print(ticker_data.index)
-fig = go.Figure(data=[go.Candlestick(x=ticker_data.index,
-                open=ticker_data['Open'],
-                high=ticker_data['High'],
-                low=ticker_data['Low'],
-                close=ticker_data['Close'])])
+candlestick_graph = go.Figure(data=[go.Candlestick(
+                                   x=ticker_data.index,
+                                   open=ticker_data['Open'],
+                                   high=ticker_data['High'],
+                                   low=ticker_data['Low'],
+                                   close=ticker_data['Close']
+                                  )])
 
+fig.add_candlestick(
+                                   x=ticker_data.index,
+                                   open=ticker_data['Open'],
+                                   high=ticker_data['High'],
+                                   low=ticker_data['Low'],
+                                   close=ticker_data['Close']
+                                  )
 
-fig.update_layout(yaxis_title='Close', xaxis_title='Date')
+fig.update_layout(title=f'{ticker_symbol} Close', template='plotly_dark', yaxis_title='Close', xaxis_title='Date')
 
-# uncomment to open browser window showing graph
+# show figure in browser window
 fig.show()
 
-show_fig(fig)
+ticker = ticker.Ticker(ticker_symbol)
+
+# show_fig(fig)
