@@ -22,7 +22,7 @@ class StockDataProvider:
 
         self.last_retrieval_time_dict: Dict[str, datetime.datetime] = {}
 
-    def store_ticker(self, ticker_symbol: str):
+    def store_ticker(self, ticker_symbol: str) -> None:
 
         # create a new directory to store the data if it doesn't already exist
         if not os.path.exists('stored_data'):
@@ -39,7 +39,7 @@ class StockDataProvider:
         ticker_dataframe = ticker_data.history(period='max', frequency='1d')
         ticker_dataframe.to_pickle(ticker_file_path)
 
-    def get_ticker(self, ticker_symbol: str):
+    def get_ticker(self, ticker_symbol: str) -> pd.DataFrame:
         """
 
         :param ticker_symbol: A stock ticker to get data for e.g. 'MSFT'
@@ -51,13 +51,10 @@ class StockDataProvider:
         # if the ticker has already been stored, see if it is up to date. If not, store it again.
         if os.path.isfile(ticker_file_path):
             ticker_dataframe = pd.read_pickle(ticker_file_path)
-            if ticker_symbol in self.last_retrieval_time_dict:
-                print(f'latest retrieval time: {self.last_retrieval_time_dict[ticker_symbol]}')
-            print(f'current time minus tolerance: {datetime.datetime.now() - datetime.timedelta(seconds=self.tolerance)}')
             adjusted_time = datetime.datetime.now() - datetime.timedelta(seconds=self.tolerance)
             if ticker_symbol in self.last_retrieval_time_dict and \
                     self.last_retrieval_time_dict[ticker_symbol] < adjusted_time:
-                print('new stock data retrieved')
+                print('stock data updated to latest version')
                 self.store_ticker(ticker_symbol)
         else:
             self.store_ticker(ticker_symbol)
