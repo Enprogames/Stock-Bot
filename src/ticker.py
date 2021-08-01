@@ -1,6 +1,10 @@
+import datetime
+
 import numpy as np
 import pandas as pd
 import yfinance as yf
+
+import download_data
 
 
 class Ticker(pd.DataFrame):
@@ -9,9 +13,13 @@ class Ticker(pd.DataFrame):
     """
 
     def __init__(self, symbol):
-        yfinance_ticker_data = yf.Ticker(symbol)
 
-        super().__init__(yfinance_ticker_data.history(period='max'))
+        # update to latest stock data if it is older than 5 minutes
+        stock_data_provider = download_data.StockDataProvider(tolerance=60*60*24)
+
+        yfinance_ticker_data = stock_data_provider.get_ticker(symbol)
+
+        super().__init__(yfinance_ticker_data)
 
         self.symbol = symbol
 
@@ -38,7 +46,8 @@ class Ticker(pd.DataFrame):
         if not end:
             end = self.index[-1]
 
-        graph = self.Close.between_time(start=start, end=end, include_start=True, include_end=True)
+        mask = (self.Close.index >= start) & (self.Close.index <= end)
+        graph = self.Close.loc[mask]
 
         avg_slope_val: float
         graph_len: int = len(graph)
@@ -48,14 +57,15 @@ class Ticker(pd.DataFrame):
 
         return avg_slope_val
 
-    def moving_avg_line(self, start=None, end=None) -> pd.Series:
+    def moving_avg_line(self, start: datetime.datetime = None, end: datetime.datetime = None) -> pd.Series:
 
         if not start:
             start = self.index[0]
         if not end:
             end = self.index[-1]
 
-        graph: pd.Series = self.Close.between_time(start=start, end=end, include_start=True, include_end=True)
+        mask = (self.Close.index >= start) & (self.Close.index <= end)
+        graph = self.Close.loc[mask]
 
         tan_line_vals: np.array = np.empty(len(graph))
 
