@@ -114,7 +114,7 @@ print(date_location)
 fig.add_trace(go.Bar(x=['03-01-2020', '04-01-2020'], y=[200, 250], opacity=0.5))
 #fig.add_hrect(y0=0.9, y1=200, line_width=0, fillcolor="red", opacity=0.2)
 
-fig.update_layout(title=f'{ticker_symbol} Close', template='plotly_dark', yaxis_title='Close', xaxis_title='Date')
+fig.update_layout(title=f'{ticker_symbol} Close', yaxis_title='Close', xaxis_title='Date')
 
 # show figure in browser window
 fig.show()
