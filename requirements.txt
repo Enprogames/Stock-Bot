@@ -15,3 +15,4 @@ six==1.16.0
 tenacity==8.0.1
 urllib3==1.26.6
 yfinance==0.1.63
+alpaca-trade-api==1.2.3
