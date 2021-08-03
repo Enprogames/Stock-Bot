@@ -1,0 +1,5 @@
+{
+  "API_Key": "Enter api key here",
+  "Secret_Key": "Enter secret key here",
+  "Base_URL": "https://paper-api.alpaca.markets/"
+}
