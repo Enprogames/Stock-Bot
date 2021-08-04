@@ -10,7 +10,7 @@ import plotly.express as px
 import plotly.graph_objects as go
 import numpy as np
 import pandas as pd
-import download_data
+import data_provider
 import ticker
 
 
@@ -41,7 +41,7 @@ tickers = ('AMD', 'DIS', 'TSLA')
 ticker_symbol = 'MSFT'
 
 # update the data if it is more than one day old
-data_provider = download_data.StockDataProvider(tolerance=60*60*24)
+data_provider = data_provider.StockDataProvider(tolerance=60 * 60 * 24)
 
 ticker_data = ticker.Ticker(ticker_symbol, start='01-01-2020', end=datetime.datetime.now())
 

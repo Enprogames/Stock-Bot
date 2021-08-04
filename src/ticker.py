@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 import yfinance as yf
 
-import download_data
+import data_provider
 
 
 class Ticker(pd.DataFrame):
@@ -15,7 +15,7 @@ class Ticker(pd.DataFrame):
     def __init__(self, symbol, start=None, end=None):
 
         # update to latest stock data if it is older than 5 minutes
-        stock_data_provider = download_data.StockDataProvider(tolerance=60*60*24)
+        stock_data_provider = data_provider.StockDataProvider(tolerance=60 * 60 * 24)
 
         yfinance_ticker_data = stock_data_provider.get_ticker(symbol)
 
