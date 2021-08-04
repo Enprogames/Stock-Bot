@@ -1,10 +1,13 @@
 from abc import ABC, abstractmethod
 from typing import Tuple
 
+import alpaca_trade_api
+
 
 class StockTraderADT(ABC):
 
-    def __init__(self, trade_api: str, credentials: Tuple):
+    @abstractmethod
+    def __init__(self, credentials: Tuple):
         """
 
         :param credentials: Required credentials for trading using the API. Some APIs may require a single key while
@@ -12,6 +15,7 @@ class StockTraderADT(ABC):
         """
         pass
 
+    @abstractmethod
     def buy(self, symbol: str, amount: float) -> bool:
         """
 
@@ -21,6 +25,7 @@ class StockTraderADT(ABC):
         """
         pass
 
+    @abstractmethod
     def sell(self, symbol: str, amount: float) -> bool:
         """
 
@@ -28,6 +33,18 @@ class StockTraderADT(ABC):
         :param amount: How many stocks to sell
         :return: Whether or not the trade was a success
         """
+        pass
+
+
+class AlpacaStockTrader(StockTraderADT, alpaca_trade_api.REST):
+
+    def __init__(self, credentials: Tuple, base_url):
+        alpaca_trade_api.REST.__init__(self, key_id=credentials[0], secret_key=credentials[1], base_url=base_url)
+
+    def buy(self, symbol: str, amount: float) -> bool:
+        pass
+
+    def sell(self, symbol: str, amount: float) -> bool:
         pass
 
 
@@ -46,10 +63,7 @@ class StockTrader(StockTraderADT):
         self.credentials = credentials
 
         if trade_api == 'alpaca':
-            self.api_key = credentials[0]
-            self.secret_key = credentials[1]
-
-        super().__init__(trade_api, credentials)
+            self.trade_api = AlpacaStockTrader(credentials, base_url="https://paper-api.alpaca.markets/")
 
     def buy(self, symbol: str, amount: float) -> bool:
 
