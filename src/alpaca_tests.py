@@ -12,6 +12,8 @@ import json
 
 import alpaca_trade_api as trade_api
 
+import trade_stocks
+
 with open('api_conf.json', 'r') as json_file:
     api_key_json = json.load(json_file)
 
@@ -27,3 +29,9 @@ trades = api.list_orders()
 
 for trade in trades:
     print(trade)
+
+# create new stock trading object and use alpaca to do the trades
+stock_trader_obj = trade_stocks.StockTrader('alpaca', (API_Key_ID, API_Secret_Key))
+
+# buy $2.00 worth of Microsoft stocks
+stock_trader_obj.buy('MSFT', amount=2, notional=True)
