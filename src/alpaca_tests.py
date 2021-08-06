@@ -34,4 +34,9 @@ for trade in trades:
 stock_trader_obj = trade_stocks.StockTrader('alpaca', (API_Key_ID, API_Secret_Key))
 
 # buy $2.00 worth of Microsoft stocks
-stock_trader_obj.buy('MSFT', amount=2, notional=True)
+#stock_trader_obj.buy('MSFT', amount=2, notional=True)
+
+#order = api.submit_order(symbol='MSFT', notional=2)
+#print(order)
+
+print(api.list_orders()[0])
