@@ -1,3 +1,11 @@
+__author__ = "Ethan Posner"
+__copyright__ = ""
+__credits__ = []
+__license__ = ""
+__version__ = "0,1dev"
+__maintainer__ = "Ethan Posner"
+__status__ = "Production"
+
 import datetime
 import time
 from typing import List

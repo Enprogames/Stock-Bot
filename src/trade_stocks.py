@@ -1,3 +1,11 @@
+__author__ = "Ethan Posner"
+__copyright__ = ""
+__credits__ = []
+__license__ = ""
+__version__ = "0,1dev"
+__maintainer__ = "Ethan Posner"
+__status__ = "Production"
+
 from abc import ABC, abstractmethod
 from typing import Tuple
 

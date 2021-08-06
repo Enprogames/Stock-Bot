@@ -6,7 +6,6 @@ __credits__ = []
 __license__ = ""
 __version__ = "0,1dev"
 __maintainer__ = "Ethan Posner"
-__email__ = "PosnerEthan@outlook.com"
 __status__ = "Production"
 
 import json
@@ -24,7 +23,7 @@ base_url = api_key_json['APCA_API_BASE_URL']
 
 api = trade_api.REST(key_id=API_Key_ID, secret_key=API_Secret_Key, base_url=base_url)
 
-trades = api.get_trades_iter("MSFT", "2021-02-08", "2021-02-08", limit=10)
+trades = api.list_orders()
 
 for trade in trades:
     print(trade)
