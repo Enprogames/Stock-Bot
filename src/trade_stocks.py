@@ -66,6 +66,9 @@ class AlpacaStockTrader(StockTraderADT, alpaca_trade_api.REST):
     def sell(self, symbol: str, amount: float, notional: bool = False) -> bool:
         pass
 
+    def get_symbol_trades(self, symbol: str):
+        pass
+
     def get_trades(self):
         pass
 
@@ -84,6 +87,9 @@ class SimulatedTrader(StockTraderADT):
         pass
 
     def sell(self, symbol: str, amount: float, notional: bool = False) -> bool:
+        pass
+
+    def get_symbol_trades(self, symbol: str):
         pass
 
     def get_trades(self):
