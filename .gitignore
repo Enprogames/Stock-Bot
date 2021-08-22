@@ -136,4 +136,3 @@ dmypy.json
 
 # Data files
 *.pkl
-src/api_conf.json
