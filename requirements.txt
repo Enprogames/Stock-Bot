@@ -16,3 +16,4 @@ tenacity==8.0.1
 urllib3==1.26.6
 yfinance==0.1.63
 alpaca-trade-api==1.2.3
+pre-commit==2.14.0
