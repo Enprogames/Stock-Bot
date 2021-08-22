@@ -60,7 +60,7 @@ class AlpacaStockTrader(StockTraderADT, alpaca_trade_api.REST):
         alpaca_trade_api.REST.__init__(self, key_id=credentials[0], secret_key=credentials[1], base_url=base_url)
 
     def buy(self, symbol: str, amount: float, notional: bool = False) -> bool:
-        result = False
+        # result = False
         self.submit_order(symbol, qty=amount)
 
     def sell(self, symbol: str, amount: float, notional: bool = False) -> bool:
@@ -143,5 +143,3 @@ class StockTrader(StockTraderADT):
 
     def get_trades(self):
         return self.trades
-
-

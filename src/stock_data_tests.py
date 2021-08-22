@@ -7,16 +7,12 @@ __maintainer__ = "Ethan Posner"
 __status__ = "Production"
 
 import datetime
-import time
-from typing import List
 import os
 
 import tkinter as tk
 from PIL import ImageTk, Image
 
-import plotly.express as px
 import plotly.graph_objects as go
-import numpy as np
 import pandas as pd
 import data_provider
 import ticker
@@ -58,59 +54,59 @@ ticker_close_data: pd.Series = ticker_data.Close
 ticker_close_data.name = f'{ticker_symbol} Close Data'
 
 secondary_trend1: pd.Series = ticker_data.moving_avg_line(
-                                                        start='03-01-2020',
-                                                        end='09-01-2020'
-                                                        )
+    start='03-01-2020',
+    end='09-01-2020'
+)
 
 secondary_trend2: pd.Series = ticker_data.moving_avg_line(
-                                                        start='09-01-2020',
-                                                        end='03-01-2021'
-                                                        )
+    start='09-01-2020',
+    end='03-01-2021'
+)
 
 secondary_trend3: pd.Series = ticker_data.moving_avg_line(
-                                                        start='03-01-2021',
-                                                        end='09-01-2021'
-                                                        )
+    start='03-01-2021',
+    end='09-01-2021'
+)
 
 primary_trend: pd.Series = ticker_data.moving_avg_line(
-                                                        start='03-01-2020',
-                                                        end=datetime.datetime.now() - datetime.timedelta(days=5)
-                                                        )
+    start='03-01-2020',
+    end=datetime.datetime.now() - datetime.timedelta(days=5)
+)
 
 fig = go.Figure()
 
 fig.add_scatter(
-                x=secondary_trend1.index,
-                y=secondary_trend1.to_list(),
-                name='Secondary Trend'
-               )
+    x=secondary_trend1.index,
+    y=secondary_trend1.to_list(),
+    name='Secondary Trend'
+)
 
 fig.add_scatter(
-                x=secondary_trend2.index,
-                y=secondary_trend2.to_list(),
-                name='Secondary Trend'
-               )
+    x=secondary_trend2.index,
+    y=secondary_trend2.to_list(),
+    name='Secondary Trend'
+)
 
 fig.add_scatter(
-                x=secondary_trend3.index,
-                y=secondary_trend3.to_list(),
-                name='Secondary Trend'
-               )
+    x=secondary_trend3.index,
+    y=secondary_trend3.to_list(),
+    name='Secondary Trend'
+)
 
 fig.add_scatter(
-                x=primary_trend.index,
-                y=primary_trend.to_list(),
-                name='Primary Trend'
-                )
+    x=primary_trend.index,
+    y=primary_trend.to_list(),
+    name='Primary Trend'
+)
 
 
 fig.add_candlestick(
-                    x=ticker_data.index,
-                    open=ticker_data['Open'],
-                    high=ticker_data['High'],
-                    low=ticker_data['Low'],
-                    close=ticker_data['Close']
-                    )
+    x=ticker_data.index,
+    open=ticker_data['Open'],
+    high=ticker_data['High'],
+    low=ticker_data['Low'],
+    close=ticker_data['Close']
+)
 
 date_location = ticker_close_data.loc['03-01-2020':'04-01-2020']
 print(date_location)
@@ -120,7 +116,7 @@ print(date_location)
 # fig.add_vline(x=['11-01-2020'], line_width=3, line_dash="dash", line_color="green")
 
 fig.add_trace(go.Bar(x=['03-01-2020', '04-01-2020'], y=[200, 250], opacity=0.5))
-#fig.add_hrect(y0=0.9, y1=200, line_width=0, fillcolor="red", opacity=0.2)
+# fig.add_hrect(y0=0.9, y1=200, line_width=0, fillcolor="red", opacity=0.2)
 
 fig.update_layout(title=f'{ticker_symbol} Close', yaxis_title='Close', xaxis_title='Date')
 
