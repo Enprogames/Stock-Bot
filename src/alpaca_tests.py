@@ -29,9 +29,23 @@ BASE_URL = api_key_json['APCA_API_BASE_URL']
 stock_trader_obj = trade_stocks.StockTrader('alpaca', {'APCA_API_KEY_ID': API_Key_ID, 'APCA_API_SECRET_KEY': API_Secret_Key,
                                             'APCA_API_BASE_URL': BASE_URL})
 
-stock_trader_obj.buy('msft', amount=5, notional=True)
+
+# stock_trader_obj.buy('msft', amount=5, notional=True)
+
+# stock_trader_obj.sell('msft', amount=5, notional=True)
 
 # print out all orders
 orders = stock_trader_obj.get_orders()
 for order in orders:
     print(order)
+
+# list_orders() doesn't list filled orders?
+all_orders = list(stock_trader_obj.alpaca_trader.list_orders())
+filled_orders = list(stock_trader_obj.alpaca_trader.list_orders(status="filled"))
+
+print(len(filled_orders))
+
+for order in filled_orders:
+    print(order)
+
+print(any(order in all_orders for order in filled_orders))
