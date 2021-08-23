@@ -1,5 +1,5 @@
 # Stock-Bot
-Bot to buy stocks and crypto
+A Bot written in python to trade stocks and crypto. At the moment, the [Alpaca trading API](https://alpaca.markets/docs/api-documentation/) is being used for making trades, but this might be changed in the future.
 ## Installation
 1. Install [Python](https://www.python.org/downloads/)
 1. Create fork of the repository
