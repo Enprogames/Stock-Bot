@@ -71,6 +71,12 @@ class StockTraderADT(ABC):
 
 
 class StockOrderADT(ABC):
+    """
+    An order sent for a specific stock. This differs from a position, since a stock is not owned until an order for it has gone through.
+
+    For example, a user may buy a stock once, then see that the value has gone down and decide to buy again. Once both of these have been filled,
+    they will both be added to a position object for the given stock (or a new position object will be created).
+    """
 
     @abstractmethod
     def __init__(self, side: str, symbol: str, amount: float, notional=False, status='open', time_in_force='gtc', trade_api=None):
@@ -95,6 +101,32 @@ class StockOrderADT(ABC):
 
         If the order was successfully cancelled, True should be returned.
         :return: Whether or not the cancellation was successful.
+        """
+        pass
+
+
+class StockPositionADT(ABC):
+    """
+    Keeps track of how much is owned of each stock in a user's portfolio.
+
+    These shouldn't be interacted with directly, and should only be accessed through a StockTrader object.
+    """
+
+    @abstractmethod
+    def __init__(self, symbol: str, amount: float = 0):
+
+        self.symbol = symbol
+        self._amount = amount
+
+    def add_stock(self, amount):
+        """
+        This should be used when more of this stock is bought
+        """
+        pass
+
+    def remove_stock(self, amount):
+        """
+        This should be used when stock is sold and the amount owned must be reduced
         """
         pass
 
@@ -134,8 +166,10 @@ class StockOrder(StockOrderADT):
         specified.
         :return: The status of the order (new,partially_filled, filled, done_for_day, cancelled, expired, replaced, pending_cancel, pending_replace)
         """
-        if request and self.trade_api:
+        if request and self.trade_api and not self._status == 'filled':
             order_info = self.trade_api.get_order(self.id)
+            if not order_info:
+                order_info = self.trade_api.get_position(self.id)
             self._status = order_info.status
 
         return self._status
@@ -146,16 +180,12 @@ class StockOrder(StockOrderADT):
         """
         self.status = self.status()
 
-        if self.trade_api:
-            order_info = self.trade_api.get_order(self.id)
-            self._status = order_info.status
-
         if self._status == 'filled':
             raise UncancellableOrderException("Order has already been filled")
         else:
             if self.trade_api:
                 try:
-                    order_info.cancel()
+                    self.trade_api.cancel()
                 except alpaca_trade_api.rest.APIError:
                     traceback.print_exc()
             else:
@@ -166,6 +196,24 @@ class StockOrder(StockOrderADT):
     def __str__(self):
         amount_str = f"amount: ${self.amount}" if self.notional else f"qty: {self.amount}"
         return f"{self.symbol} {self.side} order ({amount_str}, status: {self.status})"
+
+
+class StockPosition(StockPositionADT):
+
+    def __init__(self, symbol: str, amount: float = 0):
+        pass
+
+    def add_stock(self, amount):
+        """
+        This should be used when more of this stock is bought
+        """
+        pass
+
+    def remove_stock(self, amount):
+        """
+        This should be used when stock is sold and the amount owned must be reduced
+        """
+        pass
 
 
 class AlpacaStockTrader(StockTraderADT, alpaca_trade_api.REST):
