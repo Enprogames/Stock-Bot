@@ -74,6 +74,16 @@ cat > .git/hooks/post-merge << EOF
 
 # This script will run on a successful merge
 
+function report_result() {
+    # Gets the return value `$?` of the last command and reports success or not
+    if [ $? -eq 0 ]; then
+        echo -e "Success."
+    else
+        echo -e "\nSomething went wrong! Bailing..."
+        exit 1
+    fi
+}
+
 echo -e "\n*** Running post-merge hook\n"
 # venv
 echo -e "\n*** Activating the python virtual environment for this script..."
