@@ -16,7 +16,7 @@ A Bot written in python to trade stocks and crypto. At the moment, the [Alpaca t
          2. Linux: `source venv/bin/activate`
      3. Install requirements: `pip install -r requirements.txt`
      4. Install pre-commit git hooks: `pre-commit install`
-     5. Setup post-merge hooks to update requirements on merge.
+     5. Setup post-merge hooks to update pip, requirements, and hooks on merge.
 ## Running
 This project is currently not in a runnable state. You can look at and tinker with the code in this repository, but at the moment there is no specific way of running the project.
 ## Contributing
