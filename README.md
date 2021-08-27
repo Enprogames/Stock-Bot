@@ -7,14 +7,16 @@ A Bot written in python to trade stocks and crypto. At the moment, the [Alpaca t
 3. Ensure [git is installed](https://git-scm.com/downloads)
 4. Clone fork: `git clone https://github.com/username/Stock-Bot.git`
 5. Change to project directory: `cd Stock-Bot`
-6. Create virtual environment using venv:
-    1. Windows: `python -m venv venv --prompt stock-bot`
-    2. Linux: `python3 -m venv venv --prompt stock-bot` 
-7. Activate virtual environment: 
-    1. Windows: `source venv/Scripts/activate`
-    2. Linux: `source venv/bin/activate`
-8. Install requirements: `pip install -r requirements.txt`
-9. Install pre-commit git hooks: `pre-commit install`
+6. Run setup.sh: `./setup.sh`. This will do the following:
+     1. Create virtual environment using venv:
+         1. Windows: `python -m venv venv --prompt stock-bot`
+         2. Linux: `python3 -m venv venv --prompt stock-bot` 
+     2. Activate virtual environment: 
+         1. Windows: `source venv/Scripts/activate`
+         2. Linux: `source venv/bin/activate`
+     3. Install requirements: `pip install -r requirements.txt`
+     4. Install pre-commit git hooks: `pre-commit install`
+     5. Setup post-merge hooks to update requirements on merge.
 ## Running
 This project is currently not in a runnable state. You can look at and tinker with the code in this repository, but at the moment there is no specific way of running the project.
 ## Contributing
