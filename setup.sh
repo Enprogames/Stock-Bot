@@ -89,7 +89,6 @@ echo -e "\n*** Running post-merge hook\n"
 # venv
 echo -e "\n*** Activating the python virtual environment for this script..."
 OS=$(uname -a | cut -c1-5)
-report_result
 if [[ $OS =~ "Linux" ]]; then
     echo "Making adjustments due to bad choice of operating system"
     source venv/bin/activate
