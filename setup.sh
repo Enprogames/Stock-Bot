@@ -1,8 +1,9 @@
 #!/bin/bash
 
 function report_result() {
-    # Gets the return value `$?` of the last command and reports success or not
-    if [ $? -eq 0 ]; then
+    # Gets the return value '$?'' of the last command and reports success or not
+    last_cmd=$?
+    if [[ $last_cmd -eq 0 ]]; then
         echo -e "Success."
     else
         echo -e "\nSomething went wrong! Bailing..."
@@ -75,8 +76,8 @@ cat > .git/hooks/post-merge << EOF
 # This script will run on a successful merge
 
 function report_result() {
-    # Gets the return value `$?` of the last command and reports success or not
-    if [ $? -eq 0 ]; then
+    # Gets the return value '$?' of the last command and reports success or not
+    if [[ $? -eq 0 ]]; then
         echo -e "Success."
     else
         echo -e "\nSomething went wrong! Bailing..."
@@ -113,6 +114,8 @@ echo -e "\n*** Installing any new pre-commit hooks\n"
 python -m pre_commit install
 report_result
 EOF
+
+echo -e "post-merge hooks installed at .git/hooks/post-merge"
 report_result
 
 echo -e "\nSetup Completed Successfully."
