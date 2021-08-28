@@ -118,4 +118,9 @@ EOF
 echo -e "post-merge hooks installed at .git/hooks/post-merge"
 report_result
 
+# set post-merge hook as executable
+echo -e "\n*** Setting post-merge hook as executable\n"
+chmod +x .git/hooks/post-merge
+report_result
+
 echo -e "\nSetup Completed Successfully."
