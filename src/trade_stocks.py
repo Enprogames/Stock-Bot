@@ -69,6 +69,20 @@ class StockTraderADT(ABC):
         """
         pass
 
+    @abstractmethod
+    def get_symbol_position(self) -> 'StockPosition':
+        """
+        Get the current position for a given stock. An exception should be raised if a position doesn't exist for it.
+        """
+        pass
+
+    @abstractmethod
+    def get_positions(self) -> List['StockPosition']:
+        """
+        Get all stock positions for this object. This should request any new information from an API if one is being used.
+        """
+        pass
+
 
 class StockOrderADT(ABC):
     """
@@ -89,7 +103,7 @@ class StockOrderADT(ABC):
     @abstractproperty
     def status(self):
         """
-
+        Return the current status of this order e.g. new, partially-filled, filled, canceled, replaced, etc
         """
         pass
 
@@ -114,16 +128,16 @@ class StockPositionADT(ABC):
 
     @abstractmethod
     def __init__(self, symbol: str, amount: float = 0):
+        pass
 
-        self.symbol = symbol
-        self._amount = amount
-
+    @abstractmethod
     def add_stock(self, amount):
         """
         This should be used when more of this stock is bought
         """
         pass
 
+    @abstractmethod
     def remove_stock(self, amount):
         """
         This should be used when stock is sold and the amount owned must be reduced
@@ -151,6 +165,8 @@ class StockOrder(StockOrderADT):
         self.notional: bool = notional
         self._status = status
         self.id: str = id
+        self.price_per_share: float = None  # TODO: Figure out how to properly implement this
+
         self.trade_api: any = trade_api
 
         # times where certain actions occured for this trading object (e.g. when the order was created: 'created_at',
@@ -198,22 +214,39 @@ class StockOrder(StockOrderADT):
         return f"{self.symbol} {self.side} order ({amount_str}, status: {self.status})"
 
 
+class PositionDoesNotExistException(Exception):
+    """
+    Should be thrown when more stock is subtracted from a stock position than is currently owned.
+    """
+    pass
+
+
 class StockPosition(StockPositionADT):
 
-    def __init__(self, symbol: str, amount: float = 0):
-        pass
+    def __init__(self, symbol: str, amount: float = 0, value: float = None):
+        self.symbol = symbol
+        self._amount = amount
+        self.value = value
 
     def add_stock(self, amount):
         """
         This should be used when more of this stock is bought
         """
-        pass
+        self._amount += amount
 
     def remove_stock(self, amount):
         """
         This should be used when stock is sold and the amount owned must be reduced
         """
-        pass
+        self._amount -= amount
+
+        if self.amount < 0:
+            self._amount = 0
+            raise PositionDoesNotExistException(f"Not enough of {self.symbol} was owned to sell this much! {self._amount} was owned and {amount} was \
+            attempted to be subtracted")
+
+    def __str__(self):
+        return f"Position for {self.symbol} of {self._amount} stocks (value: ${self.value})"
 
 
 class AlpacaStockTrader(StockTraderADT, alpaca_trade_api.REST):
@@ -245,9 +278,13 @@ class AlpacaStockTrader(StockTraderADT, alpaca_trade_api.REST):
         alpaca_trade_api.REST.__init__(self, key_id=key_id, secret_key=secret_key, base_url=base_url)
 
         self.orders: List[StockOrder] = []
+        self.positions: Dict[str, StockPosition] = {}
 
         # add any existing orders from the trade api
-        prev_orders = self.list_orders()
+        prev_orders: List[alpaca_trade_api.Order] = self.list_orders()
+
+        # since filled orders aren't returned by the alpaca list_orders() method, they must be retrieved separately
+        prev_orders += self.list_orders(status='filled')
         for prev_order in prev_orders:
             if prev_order.notional and int(prev_order.notional) > 0:
                 self.orders.append(StockOrder(side=prev_order.side, symbol=prev_order.symbol, amount=prev_order.notional, notional=True,
@@ -255,6 +292,11 @@ class AlpacaStockTrader(StockTraderADT, alpaca_trade_api.REST):
             else:
                 self.orders.append(StockOrder(side=prev_order.side, symbol=prev_order.symbol, amount=prev_order.qty, notional=False,
                                               status=prev_order.status, trade_api=self, id=prev_order.id))
+
+        prev_positions: List[alpaca_trade_api.Position] = self.list_positions()
+        for prev_position in prev_positions:
+            self.positions[prev_position.symbol] = StockPosition(
+                symbol=prev_position.symbol, amount=prev_position.qty, value=prev_position.market_value)
 
     def buy(self, symbol: str, amount: float, notional: bool = False) -> bool:
 
@@ -300,6 +342,12 @@ class AlpacaStockTrader(StockTraderADT, alpaca_trade_api.REST):
 
     def get_orders(self) -> List[str]:
         return self.orders
+
+    def get_symbol_position(self, symbol) -> StockPosition:
+        return self.positions[symbol]
+
+    def get_positions(self) -> List[StockPosition]:
+        list(self.positions.values())
 
 
 class SimulatedTrader(StockTraderADT):
@@ -354,6 +402,7 @@ class StockTrader(StockTraderADT):
 
         # all orders made by this object
         self.orders: List[StockOrder] = []
+        self.positions: Dict[str, StockPosition] = {}
 
         if trade_api == 'alpaca':
             self.alpaca_trader = AlpacaStockTrader(api_params)
@@ -397,3 +446,13 @@ class StockTrader(StockTraderADT):
         if self.trade_api == 'alpaca':
             self.orders = self.alpaca_trader.get_orders()
         return self.orders
+
+    def get_symbol_position(self, symbol) -> StockPosition:
+        if self.trade_api == 'alpaca':
+            self.position = self.alpaca_trader.get_symbol_position(symbol)
+        return self.position
+
+    def get_positions(self) -> List[StockPosition]:
+        if self.trade_api == 'alpaca':
+            self.positions = self.alpaca_trader.positions
+        return self.positions

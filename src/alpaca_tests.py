@@ -43,9 +43,7 @@ for order in orders:
 all_orders = list(stock_trader_obj.alpaca_trader.list_orders())
 filled_orders = list(stock_trader_obj.alpaca_trader.list_orders(status="filled"))
 
-print(len(filled_orders))
+positions = stock_trader_obj.get_positions()
 
-for order in filled_orders:
-    print(order)
-
-print(any(order in all_orders for order in filled_orders))
+for position in positions:
+    print(f'{position=}')
