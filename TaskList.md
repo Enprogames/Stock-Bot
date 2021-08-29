@@ -1,8 +1,8 @@
 # List of tasks to do for this project
 
 - [x] Calculate moving average of stock ticker in given period
-- [ ] Transition to numpy arrays for faster calculations
-- [ ] Learn more about stock indicators:
+- [x] Transition to numpy arrays for faster calculations
+- [x] Learn more about stock indicators:
 https://www.ig.com/en/trading-strategies/10-trading-indicators-every-trader-should-know-190604
   https://www.investopedia.com/top-7-technical-analysis-tools-4773275
 
