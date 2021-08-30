@@ -127,7 +127,14 @@ class StockPositionADT(ABC):
     """
 
     @abstractmethod
-    def __init__(self, symbol: str, amount: float = 0):
+    def __init__(self, symbol: str, amount: float = 0, value: float = None, trade_api: any = None):
+        pass
+
+    @abstractproperty
+    def value(self) -> float:
+        """
+        Should return the current up-to-date value of this stock position (price-per-share * amount)
+        """
         pass
 
     @abstractmethod
@@ -223,10 +230,30 @@ class PositionDoesNotExistException(Exception):
 
 class StockPosition(StockPositionADT):
 
-    def __init__(self, symbol: str, amount: float = 0, value: float = None):
+    def __init__(self, symbol: str, amount: float = 0, value: float = None, trade_api: any = None):
         self.symbol = symbol
         self._amount = amount
-        self.value = value
+        self._value = value
+        self.trade_api = trade_api
+
+    @property
+    def amount(self) -> float:
+        """
+        Try to make an API request for how much stock is owned
+        """
+        if self.trade_api:
+            self._amount = self.trade_api.get_position(symbol=self.symbol).qty
+        return self._amount
+
+    @property
+    def value(self) -> float:
+        """
+        Get the current up-to-date value of the amount of stock owned. The latest value for this position should be requested from the
+        trade_api if one is given
+        """
+        if self.trade_api:
+            self._value = self.trade_api.get_position(symbol=self.symbol).value
+        return self._value
 
     def add_stock(self, amount):
         """
@@ -246,7 +273,7 @@ class StockPosition(StockPositionADT):
             attempted to be subtracted")
 
     def __str__(self):
-        return f"Position for {self.symbol} of {self._amount} stocks (value: ${self.value})"
+        return f"Position for {self.symbol} of {self.amount} stocks (value: ${self.value})"
 
 
 class AlpacaStockTrader(StockTraderADT, alpaca_trade_api.REST):
@@ -449,10 +476,10 @@ class StockTrader(StockTraderADT):
 
     def get_symbol_position(self, symbol) -> StockPosition:
         if self.trade_api == 'alpaca':
-            self.position = self.alpaca_trader.get_symbol_position(symbol)
-        return self.position
+            return self.alpaca_trader.get_symbol_position(symbol)
+        return self.positions[symbol]
 
     def get_positions(self) -> List[StockPosition]:
         if self.trade_api == 'alpaca':
             self.positions = self.alpaca_trader.positions
-        return self.positions
+        return list(self.positions.values())
