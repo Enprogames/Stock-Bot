@@ -53,7 +53,7 @@ echo -e "\n*** Installing any new pre-commit hooks\n"
 python -m pre_commit install
 report_result
 
-# create alg_conf.json file
+# create api_conf.json file
 echo -e "\n*** Creating api_conf.json file"
 cat > src/api_conf.json << EOF
 {
@@ -65,6 +65,16 @@ cat > src/api_conf.json << EOF
   "APCA_RETRY_WAIT": -1,
   "APCA_RETRY_CODES": -1,
   "DATA_PROXY_WS": ""
+}
+EOF
+
+# create alg_conf.json file to change aspects of the trading algorithm
+echo -e "\n*** Creating alg_conf.json file"
+cat > src/alg_conf.json << EOF
+{
+  "PRIMARY_VERTEXT_FACTOR": 10,
+  "SECONDARY_VERTEXT_FACTOR": 0.1,
+  "MINOR_VERTEXT_FACTOR": 0.0001
 }
 EOF
 
