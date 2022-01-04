@@ -49,7 +49,7 @@ python -m pip install -r requirements.txt
 report_result
 
 # pre-commit install
-echo -e "\n*** Installing any new pre-commit hooks\n"
+echo -e "\n*** Installing pre-commit hooks\n"
 python -m pre_commit install
 report_result
 
@@ -67,6 +67,7 @@ cat > src/api_conf.json << EOF
   "DATA_PROXY_WS": ""
 }
 EOF
+report_result
 
 # create alg_conf.json file to change aspects of the trading algorithm
 echo -e "\n*** Creating alg_conf.json file"
@@ -77,9 +78,10 @@ cat > src/alg_conf.json << EOF
   "MINOR_VERTEXT_FACTOR": 0.0001
 }
 EOF
+report_result
 
 # setup post-merge hook
-echo -e "\n*** Installing post-merge hooks"
+echo -e "\n*** Installing post-merge hooks at .git/hooks/post-merge"
 cat > .git/hooks/post-merge << EOF
 #!/bin/bash
 
@@ -123,13 +125,14 @@ echo -e "\n*** Installing any new pre-commit hooks\n"
 python -m pre_commit install
 report_result
 EOF
-
-echo -e "post-merge hooks installed at .git/hooks/post-merge"
 report_result
 
 # set post-merge hook as executable
 echo -e "\n*** Setting post-merge hook as executable\n"
 chmod +x .git/hooks/post-merge
 report_result
+
+# creating update.sh, which will simply run the post-merge hook
+
 
 echo -e "\nSetup Completed Successfully."
