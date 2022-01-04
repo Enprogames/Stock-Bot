@@ -1,6 +1,6 @@
 {
-  "APCA_API_KEY_ID": "PKD1ZQ39S3GJQ0CKGZLZ",
-  "APCA_API_SECRET_KEY": "V0nrsnut6EdCyNK9eaEJTzH1fFWXLqvrTVzyquBj",
+  "APCA_API_KEY_ID": "Enter api key here",
+  "APCA_API_SECRET_KEY": "Enter secret key here",
   "APCA_API_BASE_URL": "https://paper-api.alpaca.markets",
   "APCA_API_DATA_URL": "https://data.alpaca.markets",
   "APCA_RETRY_MAX": -1,
