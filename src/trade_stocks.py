@@ -15,6 +15,9 @@ import alpaca_trade_api
 
 
 class StockTraderADT(ABC):
+    """
+    Should function as a wrapper method for some stock trading API
+    """
 
     @abstractmethod
     def __init__(self, api_params: Dict[str, any] = None):
@@ -70,7 +73,7 @@ class StockTraderADT(ABC):
         pass
 
     @abstractmethod
-    def get_symbol_position(self) -> 'StockPosition':
+    def get_symbol_position(self, symbol: str) -> 'StockPosition':
         """
         Get the current position for a given stock. An exception should be raised if a position doesn't exist for it.
         """
