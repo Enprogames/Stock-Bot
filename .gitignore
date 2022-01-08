@@ -135,6 +135,6 @@ dmypy.json
 .idea
 
 # Data files
-*.pkl
+src/stored_data
 src/api_conf.json
 api_conf.json
