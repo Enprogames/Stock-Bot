@@ -111,7 +111,7 @@ class StockDataProvider:
 
         return ticker_dataframe
 
-    def get_ticker(self, ticker_symbol: str, **kwargs) -> pd.DataFrame:
+    def get_ticker(self, ticker_symbol: str, start=None, end=None, interval=None) -> pd.DataFrame:
         r"""
         See if the current stock data is up to date. If it is, then return it. If not, call self.store_ticker() to query yahoo finance for
         up-to-date stock data.
@@ -120,30 +120,24 @@ class StockDataProvider:
         - Reduces chance of being banned from accessing yahoo finance
 
         :param ticker_symbol: A stock ticker to get data for e.g. 'MSFT'
-        :param \**kwargs: See below
+        :param start: start of stock data. Default: 1970-01-01
+        :param end: end of stock data. Default: now
+        :param interval: How much space should be between each datapoint; the resolution of the data. Default: '1d'
         :return: Pandas dataframe containing data for the given ticker
-
-        : Keyword Arguments:
-            * *start* (``str``) --
-              Start time for data. Can be string (YYYY-MM-DD) or datetime
-            * *end* (``str``) --
-              End time for data. Can be string (YYYY-MM-DD) or datetime
-            * *interval* (``str``) --
-              How much space should be between each data item; the data resolution
         """
 
         ticker_dataframe = None
 
         ticker_symbol = ticker_symbol.upper()
 
-        start = kwargs['start'] if 'start' in kwargs else self.MAX_PAST
-        end = kwargs['end'] if 'end' in kwargs else dt.datetime.now()
+        start = start if start is not None else self.MAX_PAST
+        end = end if end is not None else dt.datetime.now()
 
         # convert start and end to datetime objects
         start = dt.datetime.strptime(start, "%Y-%d-%m") if isinstance(start, str) else start
         end = dt.datetime.strptime(end, "%Y-%d-%m") if isinstance(end, str) else end
 
-        interval = kwargs['interval'] if 'interval' in kwargs else '1d'
+        interval = interval if interval is not None else '1d'
 
         tolerance = self.interval_deltas[interval]
 
@@ -189,9 +183,40 @@ class SimulatedStockDataProvider(StockDataProvider):
     This allows for a stock trading algorithm can be easily tested against old data
     """
 
-    def __init__(self, ticker_directory=os.path.join('stored_data', 'tickers'), **kwargs):
+    def __init__(self, ticker_directory=os.path.join('stored_data', 'tickers'),
+                 data: Dict[str, pd.DataFrame] = None, sim_start=None, sim_end=None):
         super().__init__(self, ticker_directory)
-        self.current_ticker_data = kwargs['data'] if 'data' in kwargs else None
+        self.ticker_data: Dict[str, pd.Dataframe] = data
 
-    def get_updated_data(self, ticker, interval='1d'):
-        self.current_ticker_data = super().get_ticker(ticker, interval=interval)
+        self.last_instance_index = None
+
+        self.sim_start = sim_start
+        self.sim_end = sim_end
+
+    def get_updated_data(self, ticker, start=None, end=None, interval='1d'):
+        """
+        Retrieve up-to-date stock data for this object
+        """
+        self.ticker_data['ticker'] = super().get_ticker(ticker, start=start, end=end, interval=interval)
+
+    def start_simulation(self, sim_start, sim_end):
+        """
+        Start a simulated environment which provides one new instance of stock data every time one is requested
+
+        :param sim_start: Where the simulation should start in the given dataframe. This is important since most trading algorithms
+        will require that a certain number of data items already exist to work with.
+        :param sim_end: Where the simulation should end
+        """
+        self.last_instance_index = None
+
+    def get_ticker(self, ticker: str) -> pd.DataFrame:
+        """
+        Should start by returning the dataframe from the start to the sim_start dates. After the first data instance is given, preceding items
+        should include one more instance.
+        """
+        if not self.last_instance_index:
+            # get data from the start of the dataframe to sim_start
+            pass
+        else:
+            # get data from the start of the dataframe to 1 item after last_instance_index
+            pass
