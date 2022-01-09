@@ -138,6 +138,11 @@ class StockDataProvider:
 
         start = kwargs['start'] if 'start' in kwargs else self.MAX_PAST
         end = kwargs['end'] if 'end' in kwargs else dt.datetime.now()
+
+        # convert start and end to datetime objects
+        start = dt.datetime.strptime(start, "%Y-%d-%m") if isinstance(start, str) else start
+        end = dt.datetime.strptime(end, "%Y-%d-%m") if isinstance(end, str) else end
+
         interval = kwargs['interval'] if 'interval' in kwargs else '1d'
 
         tolerance = self.interval_deltas[interval]
@@ -156,21 +161,33 @@ class StockDataProvider:
             # if data about the last retrieval is available, see if it is too old or not the right resolution
             if retrieval_info and retrieval_info.interval == interval:
                 # see if the previous data covers the right range. If not, get new data
-                min_start = dt.datetime.strptime(start, "%Y-%d-%m")+tolerance if isinstance(start, str) else start+tolerance
-                max_end = dt.datetime.strptime(end, "%Y-%d-%m") - tolerance if isinstance(end, str) else end+tolerance
+                min_start = start+tolerance
+                max_end = end-tolerance
                 if retrieval_info.start <= min_start and retrieval_info.end >= max_end:
-                    ticker_dataframe = pd.read_csv(ticker_file_path).loc[start:end]
+                    ticker_dataframe = self.store_ticker(ticker_symbol, start=start, end=end).loc[start:end]
+                else:
+                    ticker_dataframe = self.store_ticker(ticker_symbol, start=start, end=end)
+                    print('stock data updated: ', end='')
+                    if retrieval_info.start > min_start:
+                        print('(earlier start time was requested)')
+                    else:
+                        print('(later end time was requested)')
             else:
                 ticker_dataframe = self.store_ticker(ticker_symbol, start=start, end=end)
-                print('stock data updated to latest version')
+                print('stock data updated to new resolution')
         # if the above check for valid existing ticker data was unsuccessful, retrieve new data
-        if not ticker_dataframe:
+        else:
             ticker_dataframe = self.store_ticker(ticker_symbol, start=start, end=end)
 
         return ticker_dataframe
 
 
 class SimulatedStockDataProvider(StockDataProvider):
+    """
+    After some initial setup, allows for a new data instance to be retrieved every time get_ticker() is called
+
+    This allows for a stock trading algorithm can be easily tested against old data
+    """
 
     def __init__(self, ticker_directory=os.path.join('stored_data', 'tickers'), **kwargs):
         super().__init__(self, ticker_directory)

@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 __author__ = "Ethan Posner"
 __copyright__ = ""
 __credits__ = []
@@ -45,7 +47,11 @@ tickers = ('AMD', 'DIS', 'TSLA')
 ticker_symbol = 'MSFT'
 
 # update the data if it is more than one day old
-data_provider = data_provider.StockDataProvider(tolerance=60 * 60 * 24)
+data_provider = data_provider.StockDataProvider()
+msft_data = data_provider.get_ticker(ticker_symbol, interval='1d')
+print(msft_data)
+
+exit(0)
 
 ticker_data = ticker.Ticker(ticker_symbol, start='01-01-2020', end=datetime.datetime.now())
 
